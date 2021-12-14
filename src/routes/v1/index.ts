@@ -2,7 +2,7 @@ import { Router } from 'express'
 import { config } from '../../config'
 
 // Routes
-import wordsRoute from './words.route'
+import authRoute from './auth.route'
 
 interface Route {
   path: string;
@@ -24,8 +24,8 @@ const setRoutes = (routes: Route[]) => {
 
 const defaultRoutes: Route[] = [
   {
-    path: '/words',
-    route: wordsRoute,
+    path: '/auth',
+    route: authRoute,
   },
   /*   {
     path: '/route',
