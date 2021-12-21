@@ -7,6 +7,9 @@ const mainConfig = {
   port: process.env.PORT || 3000,
   mongoDB: {
     uri: process.env.MONGODB_URI!
+  },
+  jwt: {
+    secret: process.env.JWT_KEY!
   }
 }
 

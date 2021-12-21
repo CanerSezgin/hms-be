@@ -3,7 +3,7 @@ import app from './app'
 import { config, checkEnvVars } from './config'
 import startMongoDB from './lib/mongoose'
 
-checkEnvVars(['MONGODB_URI'])
+checkEnvVars(['MONGODB_URI', 'JWT_KEY'])
 
 const server = app.listen(config.port, async () => {
   console.log(
