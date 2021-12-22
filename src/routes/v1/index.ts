@@ -4,6 +4,7 @@ import { config } from '../../config'
 // Routes
 import authRoute from './auth.route'
 import testRoute from './test.route'
+import appointmentRoute from './appointment'
 
 interface Route {
   path: string;
@@ -32,6 +33,10 @@ const defaultRoutes: Route[] = [
     path: '/test',
     route: testRoute,
   },
+  {
+    path: '/appointment',
+    route: appointmentRoute
+  }
   /*   {
     path: '/route',
     route: routeFile,

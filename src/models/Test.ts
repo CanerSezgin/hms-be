@@ -2,10 +2,10 @@ import mongoose from 'mongoose'
 import { TestStatus } from '../types'
 
 export interface TestAttrs {
-  appointmentId: string;
+  appointmentId: mongoose.Schema.Types.ObjectId;
   doctorId: mongoose.Schema.Types.ObjectId;
   patientId: mongoose.Schema.Types.ObjectId;
-  testType: mongoose.Schema.Types.ObjectId;
+  testTypeId: mongoose.Schema.Types.ObjectId;
   status?: string;
   fileId?: string;
   requestedAt?: Date;
@@ -17,10 +17,10 @@ interface TestModel extends mongoose.Model<TestDoc> {
 }
 
 interface TestDoc extends mongoose.Document {
-  appointmentId: string;
+  appointmentId: mongoose.Schema.Types.ObjectId;
   doctorId: mongoose.Schema.Types.ObjectId;
   patientId: mongoose.Schema.Types.ObjectId;
-  testType: mongoose.Schema.Types.ObjectId;
+  testTypeId: mongoose.Schema.Types.ObjectId;
   status: string;
   fileId: string;
   requestedAt: Date;
@@ -30,7 +30,8 @@ interface TestDoc extends mongoose.Document {
 const testSchema = new mongoose.Schema<TestDoc>(
   {
     appointmentId: {
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Appointment',
         required: true
     },
     doctorId: {
@@ -43,7 +44,7 @@ const testSchema = new mongoose.Schema<TestDoc>(
       ref: 'User',
       required: true,
     },
-    testType: {
+    testTypeId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'TestType',
       required: true
