@@ -9,3 +9,13 @@ export enum UserType {
   doctor,
   labSpec,
 }
+
+export enum TestStatus {
+  pending = 'pending',
+  done = 'done',
+}
+
+export enum TestTypeEnum {
+  analysis = 'analysis',
+  imaging = 'imaging',
+}
