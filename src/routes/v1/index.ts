@@ -3,8 +3,8 @@ import { config } from '../../config'
 
 // Routes
 import authRoute from './auth.route'
-import testRoute from './test.route'
-import appointmentRoute from './appointment'
+import testsRoute from './test.route'
+import appointmentsRoute from './appointment'
 
 interface Route {
   path: string;
@@ -30,12 +30,12 @@ const defaultRoutes: Route[] = [
     route: authRoute,
   },
   {
-    path: '/test',
-    route: testRoute,
+    path: '/tests',
+    route: testsRoute,
   },
   {
-    path: '/appointment',
-    route: appointmentRoute
+    path: '/appointments',
+    route: appointmentsRoute
   }
   /*   {
     path: '/route',
