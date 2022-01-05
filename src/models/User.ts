@@ -16,7 +16,7 @@ interface UserModel extends mongoose.Model<UserDoc> {
   build(attrs: UserAttrs): UserDoc;
 }
 
-interface UserDoc extends mongoose.Document {
+export interface UserDoc extends mongoose.Document {
   email: string;
   password: string;
   userType: UserType;
@@ -59,7 +59,7 @@ const userSchema = new mongoose.Schema<UserDoc>(
       type: String,
       required: false,
       enum: Gender,
-    },
+    }
   },
   {
     toJSON: {
