@@ -1,15 +1,17 @@
+import mongoose from 'mongoose'
 import express, { Request, Response, NextFunction } from 'express'
 import { body } from 'express-validator'
-import { createTest, createTestType } from '../../services/test'
+import { createTest, createTestType, getTestTypesByType, updateTestFee, deleteTestType } from '../../services/test'
 import validationMiddleware from '../../middlewares/validation.middleware'
 import BadRequestError from '../../utils/errors/bad-request-error'
 import { Password } from '../../utils/password'
 import { userJwt } from '../../utils/jwt'
+import { TestTypeEnum } from '../../types'
 
 const router = express.Router()
 
 router.post(
-  '/type',
+  '/types',
   [
     body('type').notEmpty(),
     body('name').trim().notEmpty().withMessage('You must supply a name'),
@@ -27,6 +29,53 @@ router.post(
     }
   }
 )
+
+router.get('/types/:type', async (req: Request, res: Response, next: NextFunction) => {
+  const {type} = req.params
+
+  try {
+
+    if(!(type in TestTypeEnum)){
+      throw new BadRequestError('Invalid Test Type')
+    }
+
+    const tests = await getTestTypesByType(type as TestTypeEnum)
+    res.status(200).json({ tests })
+  } catch (error) {
+    console.log(error)
+    next(error)
+  }
+})
+
+router.put('/types',
+[
+  body('type').notEmpty(),
+  body('name').trim().notEmpty().withMessage('You must supply a name'),
+  body('fee').notEmpty().isNumeric().withMessage('Fee should be numeric'),
+  validationMiddleware,
+],
+async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    await updateTestFee(req.body)
+    res.sendStatus(204)
+  } catch (error) {
+    console.log(error)
+    next(error)
+  }
+})
+
+router.delete('/types/:testTypeId',
+async (req: Request, res: Response, next: NextFunction) => {
+  const  testTypeId  = new mongoose.Types.ObjectId(req.params.testTypeId)
+
+  try {
+    await deleteTestType(testTypeId)
+    res.sendStatus(204)
+  } catch (error) {
+    console.log(error)
+    next(error)
+  }
+})
 
 router.post(
   '/',

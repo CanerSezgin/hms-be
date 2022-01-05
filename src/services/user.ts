@@ -67,12 +67,36 @@ export const getDoctorByUserId = async (userId: mongoose.Types.ObjectId) => {
   return doctor
 }
 
-export const deleteDoctor = async (userId: mongoose.Types.ObjectId) => {
+export const getDoctorAndUser = async (userId: mongoose.Types.ObjectId) => {
   const user = await getUserById(userId)
   const doctor = await getDoctorByUserId(userId)
+  return {user, doctor}
+}
+
+export const deleteDoctor = async (userId: mongoose.Types.ObjectId) => {
+  const { user, doctor} = await getDoctorAndUser(userId)
 
   if(user && doctor){
       await User.deleteOne({_id: userId})
       await Doctor.findOneAndDelete({ doctorId: userId })
   }
+}
+
+export const updateDoctor = async (userId: mongoose.Types.ObjectId, payload: Record<string, any>) => {
+  const { user, doctor} = await getDoctorAndUser(userId)
+
+  if(user && doctor) {
+    await User.findOneAndUpdate({_id: userId }, {
+      name: payload.name,
+      surname: payload.surname,
+      email: payload.email
+    })
+
+    await Doctor.findOneAndUpdate({ doctorId: userId}, {
+      specialization: payload.specialization,
+      fee: payload.fee
+    })
+
+  }
+
 }

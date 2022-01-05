@@ -1,6 +1,6 @@
 import express, { Request, Response, NextFunction } from 'express'
 import { body } from 'express-validator'
-import { createUser, createDoctor, getDoctors, deleteDoctor } from '../../services/user'
+import { createUser, createDoctor, getDoctors, deleteDoctor, updateDoctor } from '../../services/user'
 import validationMiddleware from '../../middlewares/validation.middleware'
 import { UserAttrs } from '../../models/User'
 import { UserType } from '../../types'
@@ -45,7 +45,7 @@ router.post(
           fee: req.body.fee
       })
 
-      res.status(201).json({ message: 'doctor created', user, doctor });
+      res.status(201).json({ message: 'doctor created', user, doctor })
     } catch (error) {
       console.log(error)
       next(error)
@@ -65,12 +65,25 @@ router.get('/doctors', async (req: Request, res: Response, next: NextFunction) =
 })
 
 router.delete('/doctors/:userId', async (req: Request, res: Response, next: NextFunction) => {
-    const { userId } = req.params
+    const  userId  = new mongoose.Types.ObjectId(req.params.userId)
 
     try {
-        await deleteDoctor(new mongoose.Types.ObjectId(userId))
+        await deleteDoctor(userId)
 
         res.sendStatus(204)
+      } catch (error) {
+        console.log(error)
+        next(error)
+      }
+})
+
+router.put('/doctors/:userId', async (req: Request, res: Response, next: NextFunction) => {
+    const userId  = new mongoose.Types.ObjectId(req.params.userId)
+
+    try {
+        await updateDoctor(userId, req.body)
+
+        return res.status(200).json({ userId})
       } catch (error) {
         console.log(error)
         next(error)
