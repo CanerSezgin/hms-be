@@ -1,15 +1,16 @@
 import express, { Request, Response, NextFunction } from 'express'
 import { body } from 'express-validator'
-import { createUser, createDoctor, getDoctors, deleteDoctor, updateDoctor } from '../../services/user'
+import { createUser, createDoctor, getUsersByType, deleteDoctor, updateDoctor, getUserById, deleteUser, updateUser } from '../../services/user'
 import validationMiddleware from '../../middlewares/validation.middleware'
-import { UserAttrs } from '../../models/User'
 import { UserType } from '../../types'
 import mongoose from 'mongoose'
+import BadRequestError from '../../utils/errors/bad-request-error'
+import NotFoundError from '../../utils/errors/not-found-error'
 
 const router = express.Router()
 
 router.post(
-  '/doctors',
+  '/staff',
   [
     body('email').isEmail().withMessage('Email must be valid'),
     body('password')
@@ -18,34 +19,37 @@ router.post(
       .withMessage('You must supply a password'),
     body('name').trim().notEmpty().withMessage('You must supply a name'),
     body('surname').trim().notEmpty().withMessage('You must supply a surname'),
-    body('specialization')
+    body('userType')
       .trim()
       .notEmpty()
-      .withMessage('You must supply specialization'),
-    body('fee')
-      .isNumeric()
-      .notEmpty()
-      .withMessage('You must supply consultancy fee'),
+      .withMessage('You must supply userType'),
     validationMiddleware,
   ],
   async (req: Request, res: Response, next: NextFunction) => {
-      const userPayload: UserAttrs = {
-        email: req.body.email,
-        name: req.body.name,
-        surname: req.body.surname,
-        password: req.body.password,
-        userType: UserType.doctor,
-      }
+      const { userType } = req.body
+
 
     try {
-      const user = await createUser(userPayload)
-      const doctor = await createDoctor({
-          doctorId: user._id,
-          specialization: req.body.specialization,
-          fee: req.body.fee
-      })
 
-      res.status(201).json({ message: 'doctor created', user, doctor })
+        if(!(userType in UserType))
+            throw new BadRequestError('Invalid User Type')
+        
+
+        if(userType === UserType.doctor && (!req.body.specialization || !req.body.fee))
+            throw new BadRequestError('Missing doctor specialization or fee')
+        
+
+        const user = await createUser(req.body)
+        
+        if(userType === UserType.doctor){
+            await createDoctor({
+                doctorId: user._id,
+                specialization: req.body.specialization,
+                fee: req.body.fee
+            })
+        }
+
+        res.status(201).json({ message: 'User Created', user })
     } catch (error) {
       console.log(error)
       next(error)
@@ -53,23 +57,35 @@ router.post(
   }
 )
 
-router.get('/doctors', async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const doctors = await getDoctors()
+router.get('/staff/:userType', async (req: Request, res: Response, next: NextFunction) => {
+    const userType = req.params.userType as UserType
 
-        res.status(200).json({ doctors })
+    try {
+
+        if(!(userType in UserType)){
+            throw new BadRequestError('Invalid User Type')
+        }
+
+        const users = await getUsersByType(userType)
+
+        res.status(200).json({ users })
       } catch (error) {
         console.log(error)
         next(error)
       }
 })
 
-router.delete('/doctors/:userId', async (req: Request, res: Response, next: NextFunction) => {
+router.delete('/staff/:userId', async (req: Request, res: Response, next: NextFunction) => {
     const  userId  = new mongoose.Types.ObjectId(req.params.userId)
 
     try {
-        await deleteDoctor(userId)
+        const user = await getUserById(userId)
+        if(!user) throw new NotFoundError()
 
+        await deleteUser(userId)
+
+        if(user.userType === UserType.doctor) await deleteDoctor(userId)
+        
         res.sendStatus(204)
       } catch (error) {
         console.log(error)
@@ -77,11 +93,16 @@ router.delete('/doctors/:userId', async (req: Request, res: Response, next: Next
       }
 })
 
-router.put('/doctors/:userId', async (req: Request, res: Response, next: NextFunction) => {
+router.put('/staff/:userId', async (req: Request, res: Response, next: NextFunction) => {
     const userId  = new mongoose.Types.ObjectId(req.params.userId)
 
     try {
-        await updateDoctor(userId, req.body)
+        const user = await getUserById(userId)
+        if(!user) throw new NotFoundError()
+
+        await updateUser(userId, req.body)
+
+        if(user.userType === UserType.doctor) await updateDoctor(userId, req.body)
 
         return res.status(200).json({ userId})
       } catch (error) {

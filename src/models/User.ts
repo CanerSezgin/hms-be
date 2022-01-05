@@ -39,7 +39,7 @@ const userSchema = new mongoose.Schema<UserDoc>(
       required: true,
     },
     userType: {
-      type: Number,
+      type: String,
       required: true,
       enum: UserType,
     },

@@ -4,10 +4,11 @@ export enum Gender {
 }
 
 export enum UserType {
-  admin,
-  patient,
-  doctor,
-  labSpec,
+  admin = 'admin',
+  patient = 'patient',
+  doctor = 'doctor',
+  lab = 'lab',
+  receptionist = 'receptionist'
 }
 
 export enum TestStatus {

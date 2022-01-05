@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken'
 import { config } from '../config'
+import { UserType } from '../types'
 
 interface UserJWTPayload {
   id: string;
@@ -16,7 +17,7 @@ declare global {
 
 class UserJWT {
   private key = config.jwt.secret;
-  generate(userId: string, email: string, userType?: number) {
+  generate(userId: string, email: string, userType?: UserType) {
     const userJwt = jwt.sign(
       {
         id: userId,
