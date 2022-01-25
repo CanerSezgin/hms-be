@@ -18,10 +18,7 @@ router.post(
       .withMessage('You must supply a password'),
     body('name').trim().notEmpty().withMessage('You must supply a name'),
     body('surname').trim().notEmpty().withMessage('You must supply a surname'),
-    body('userType')
-      .isNumeric()
-      .notEmpty()
-      .withMessage('You must supply a type (number)'),
+    body('userType').trim().notEmpty().withMessage('You must supply userType'),
     validationMiddleware,
   ],
   async (req: Request, res: Response, next: NextFunction) => {
@@ -52,13 +49,13 @@ router.post(
     try {
       const user = await getUserByEmail(email)
       if (!user) throw new BadRequestError('Invalid credentials')
-  
+
       const passwordMatch = await Password.compare(user.password, password)
       if (!passwordMatch) throw new BadRequestError('Invalid credentials')
   
       const token = userJwt.generate(user.id, user.email, user.userType)
-  
-      res.status(200).json({user, token})
+      
+      res.status(200).json({user: {...user, password: null }, token})
     } catch (error) {
       console.log(error)
       next(error)

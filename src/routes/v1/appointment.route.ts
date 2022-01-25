@@ -3,6 +3,7 @@ import { body } from 'express-validator'
 import { createAppointment, getAppointment, getAppointments } from '../../services/appointment'
 import validationMiddleware from '../../middlewares/validation.middleware'
 import BadRequestError from '../../utils/errors/bad-request-error'
+import { AppointmentTimeSlot } from '../../types'
 
 const router = express.Router()
 
@@ -49,7 +50,7 @@ router.post(
       console.log({query})
       
       const appointments = await getAppointments(query, ['patientId'], {skip, limit})
-      res.status(200).json({ appointments })
+      res.status(200).json({ appointments, timeSlots: Object.values(AppointmentTimeSlot) })
     } catch (error) {
       console.log(error)
       next(error)

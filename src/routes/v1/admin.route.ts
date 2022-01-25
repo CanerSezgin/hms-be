@@ -1,6 +1,7 @@
 import express, { Request, Response, NextFunction } from 'express'
 import { body } from 'express-validator'
 import { createUser, createDoctor, getUsersByType, deleteDoctor, updateDoctor, getUserById, deleteUser, updateUser } from '../../services/user'
+import { getDoctorsBySpec } from '../../services/user'
 import validationMiddleware from '../../middlewares/validation.middleware'
 import { UserType } from '../../types'
 import mongoose from 'mongoose'
@@ -109,6 +110,19 @@ router.put('/staff/:userId', async (req: Request, res: Response, next: NextFunct
         console.log(error)
         next(error)
       }
+})
+
+router.get('/doctor/:specialization', async (req: Request, res: Response, next: NextFunction) => {
+  const { specialization } = req.params
+
+  try {
+      const doctorsBySpec = await getDoctorsBySpec(specialization)
+
+      res.status(200).json({ doctors: doctorsBySpec })
+    } catch (error) {
+      console.log(error)
+      next(error)
+    }
 })
 
 export default router

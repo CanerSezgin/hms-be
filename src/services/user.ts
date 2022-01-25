@@ -1,7 +1,19 @@
 import mongoose from 'mongoose'
 import { User, UserAttrs, UserDoc } from '../models/User'
-import { Doctor, DoctorAttrs } from '../models/Doctor'
+import { Doctor, DoctorAttrs, DoctorDoc } from '../models/Doctor'
 import { UserType } from '../types'
+
+const doctorORM = (userObj: UserDoc, doctorObj: DoctorDoc) => {
+  return {
+    _id: userObj._id,
+    name: userObj.name,
+    surname: userObj.surname,
+    specialization: doctorObj.specialization,
+    email: userObj.email,
+    fee: doctorObj.fee,
+    fullname: `${userObj.name} ${userObj.surname}`
+  }
+}
 
 const getAdditionalData = async (user: UserDoc): Promise<Record<string, any>> => {
   switch (user.userType) {
@@ -46,21 +58,16 @@ export const createDoctor = async (doctorAttrs: DoctorAttrs) => {
   return doctor
 }
 
-export const getUsersByType = async (userType: UserType) => {
-  const users = await User.find({ userType })
+export const getUsersByType = async (userType: UserType, additionalQuery = {}) => {
+  const query = { userType, ...additionalQuery }
+  console.log(query)
+  const users = await User.find(query)
+  console.log(users)
 
   if(userType === UserType.doctor){
     return Promise.all(users.map(async user => {
-      const additionalData = await getAdditionalData(user)
-  
-      return {
-        _id: user._id,
-        name: user.name,
-        surname: user.surname,
-        specialization: additionalData.specialization,
-        email: user.email,
-        fee: additionalData.fee,
-      }
+      const doctorData = await getAdditionalData(user) as DoctorDoc
+      return doctorORM(user, doctorData)
     }))
   }
 
@@ -70,6 +77,18 @@ export const getUsersByType = async (userType: UserType) => {
 export const getDoctorByUserId = async (userId: mongoose.Types.ObjectId) => {
   const doctor = await Doctor.findOne({ doctorId: userId })
   return doctor
+}
+
+export const getDoctorsBySpec = async (specialization: string) => {
+  const doctorsData = await Doctor.find({ specialization })
+  const doctorIds = doctorsData.map(data => data.doctorId)
+  const usersData = await User.find({ _id: { $in: doctorIds } })
+  console.log(usersData)
+
+  return doctorsData.map(doctorData => {
+    const user = usersData.find(userData => (userData._id).toString() === (doctorData.doctorId).toString()) as UserDoc
+    return user ? doctorORM(user, doctorData) : {}
+  })
 }
 
 export const deleteUser = async (userId: mongoose.Types.ObjectId) => {

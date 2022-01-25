@@ -1,7 +1,7 @@
 import mongoose from 'mongoose'
 
 export interface DoctorAttrs {
-    doctorId: mongoose.Types.ObjectId;
+    doctorId: mongoose.Types.ObjectId
     specialization: string
     fee: number
 }
@@ -10,7 +10,7 @@ interface DoctorModel extends mongoose.Model<DoctorDoc> {
   build(attrs: DoctorAttrs): DoctorDoc;
 }
 
-interface DoctorDoc extends mongoose.Document {
+export interface DoctorDoc extends mongoose.Document {
   doctorId: mongoose.Types.ObjectId;
   specialization: string;
   fee: number;
