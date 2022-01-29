@@ -25,3 +25,8 @@ export const createAppointment = async (appointmentAttrs: AppointmentAttrs) => {
   await appointment.save()
   return appointment
 }
+
+export const updateAppointment = async (id: string, appointmentAttrs: Partial<AppointmentAttrs>) => {
+  const result = await Appointment.findByIdAndUpdate(id, appointmentAttrs)
+  console.log('appointment updated' , result)
+}

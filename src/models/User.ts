@@ -1,6 +1,7 @@
 import mongoose from 'mongoose'
 import { Password } from '../utils/password'
 import { UserType, Gender } from '../types'
+import dobToAge from '../utils/dobToAge'
 
 export interface UserAttrs {
   email: string;
@@ -10,6 +11,7 @@ export interface UserAttrs {
   surname: string;
   phone?: string;
   gender?: Gender;
+  dob?: string
 }
 
 interface UserModel extends mongoose.Model<UserDoc> {
@@ -24,6 +26,7 @@ export interface UserDoc extends mongoose.Document {
   surname: string;
   phone?: string;
   gender?: Gender;
+  dob?: string
 }
 
 const userSchema = new mongoose.Schema<UserDoc>(
@@ -59,15 +62,34 @@ const userSchema = new mongoose.Schema<UserDoc>(
       type: String,
       required: false,
       enum: Gender,
-    }
+    },
+    dob: {
+      type: String,
+      required: false,
+    },
   },
   {
     toJSON: {
       transform(doc, ret) {
+        const dob = ret.dob
+        
+        if(dob){
+          ret.age = dobToAge(dob)
+        }
+
         delete ret.password
         delete ret.__v
       },
     },
+    toObject: {
+      transform(doc, ret) {
+        const dob = ret.dob
+        
+        if(dob){
+          ret.age = dobToAge(dob)
+        }
+      },
+    }
   }
 )
 

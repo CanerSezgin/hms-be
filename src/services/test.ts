@@ -1,3 +1,4 @@
+import { groupBy } from 'lodash'
 import mongoose from 'mongoose'
 import { Test, TestAttrs } from '../models/Test'
 import { TestType, TestTypeAttrs } from '../models/TestType'
@@ -22,11 +23,17 @@ export const getTestTypesByType = async (type: TestTypeEnum) => {
 
 export const updateTestFee = async (testTypeAttrs: TestTypeAttrs) => {
   await TestType.findOneAndUpdate(
-    { type: testTypeAttrs.type, name: testTypeAttrs.name }, 
+    { type: testTypeAttrs.type, name: testTypeAttrs.name },
     { fee: testTypeAttrs.fee }
   )
 }
 
 export const deleteTestType = async (testTypeId: mongoose.Types.ObjectId) => {
   await TestType.findOneAndDelete({ _id: testTypeId })
+}
+
+export const search = async (query: Record<string, any>) => {
+  const populate = ['doctorId', 'patientId', 'testTypeId']
+  const tests = await Test.find(query).populate(populate).sort('requestedAt')
+  return groupBy(tests, 'testTypeId.type')
 }

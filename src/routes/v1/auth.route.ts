@@ -54,6 +54,7 @@ router.post(
       if (!passwordMatch) throw new BadRequestError('Invalid credentials')
   
       const token = userJwt.generate(user.id, user.email, user.userType)
+      console.log(user)
       
       res.status(200).json({user: {...user, password: null }, token})
     } catch (error) {

@@ -1,11 +1,9 @@
 import mongoose from 'mongoose'
 import express, { Request, Response, NextFunction } from 'express'
 import { body } from 'express-validator'
-import { createTest, createTestType, getTestTypesByType, updateTestFee, deleteTestType } from '../../services/test'
+import { createTest, createTestType, getTestTypesByType, updateTestFee, deleteTestType, search } from '../../services/test'
 import validationMiddleware from '../../middlewares/validation.middleware'
 import BadRequestError from '../../utils/errors/bad-request-error'
-import { Password } from '../../utils/password'
-import { userJwt } from '../../utils/jwt'
 import { TestTypeEnum } from '../../types'
 
 const router = express.Router()
@@ -91,6 +89,22 @@ router.post(
       console.log(req.body)
       const test = await createTest(req.body)
       res.status(201).json({ message: 'test created', test })
+    } catch (error) {
+      console.log(error)
+      next(error)
+    }
+  }
+)
+
+router.get(
+  '/patients/:patientId',
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { patientId } = req.params
+
+    try {
+      const tests = await search({ patientId })
+
+      res.status(200).json({ tests })
     } catch (error) {
       console.log(error)
       next(error)
