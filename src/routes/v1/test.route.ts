@@ -1,7 +1,7 @@
 import mongoose from 'mongoose'
 import express, { Request, Response, NextFunction } from 'express'
 import { body } from 'express-validator'
-import { createTest, createTestType, getTestTypesByType, updateTestFee, deleteTestType, search } from '../../services/test'
+import { createTest, createTestType, getTestTypesByType, updateTestFee, deleteTestType, search, updateTest } from '../../services/test'
 import validationMiddleware from '../../middlewares/validation.middleware'
 import BadRequestError from '../../utils/errors/bad-request-error'
 import { TestTypeEnum } from '../../types'
@@ -105,6 +105,46 @@ router.get(
       const tests = await search({ patientId })
 
       res.status(200).json({ tests })
+    } catch (error) {
+      console.log(error)
+      next(error)
+    }
+  }
+)
+
+router.get(
+  '/pending',
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const tests = await search({ status: 'pending' })
+
+      res.status(200).json({ tests })
+    } catch (error) {
+      console.log(error)
+      next(error)
+    }
+  }
+)
+
+router.post('/result/:id',
+[
+  body('result').trim().notEmpty().withMessage('Result is missing'),
+  validationMiddleware,
+],
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { id } = req.params
+    const { result } = req.body
+
+    try {
+      const payload = {
+        fileId: result,
+        resultAt: new Date(),
+        status: 'done'
+      }
+
+      await updateTest(id, payload)
+
+      res.sendStatus(204)
     } catch (error) {
       console.log(error)
       next(error)

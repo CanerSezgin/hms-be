@@ -1,6 +1,8 @@
 import express, { Request, Response, NextFunction } from 'express'
 import { body } from 'express-validator'
 import { createUser, createDoctor, getUsersByType, deleteDoctor, updateDoctor, getUserById, deleteUser, updateUser } from '../../services/user'
+import * as testService from '../../services/test'
+import * as appointmentService from '../../services/appointment'
 import { getDoctorsBySpec } from '../../services/user'
 import validationMiddleware from '../../middlewares/validation.middleware'
 import { UserType } from '../../types'
@@ -119,6 +121,19 @@ router.get('/doctor/:specialization', async (req: Request, res: Response, next: 
       const doctorsBySpec = await getDoctorsBySpec(specialization)
 
       res.status(200).json({ doctors: doctorsBySpec })
+    } catch (error) {
+      console.log(error)
+      next(error)
+    }
+})
+
+router.get('/stats', async (req: Request, res: Response, next: NextFunction) => {
+
+  try {
+    const appointments = await appointmentService.getStats()
+    const tests = await testService.getStats()
+
+      return res.status(200).json({ appointments, tests })
     } catch (error) {
       console.log(error)
       next(error)
