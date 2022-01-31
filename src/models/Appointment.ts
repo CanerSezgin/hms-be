@@ -9,6 +9,7 @@ export interface AppointmentAttrs {
   status?: string;
   diagnose?: string;
   patientStory?: string;
+  isPaid: boolean
 }
 
 interface AppointmentModel extends mongoose.Model<AppointmentDoc> {
@@ -23,6 +24,7 @@ interface AppointmentDoc extends mongoose.Document {
   status: string;
   diagnose: string;
   patientStory: string;
+  isPaid: boolean
 }
 
 const appointmentSchema = new mongoose.Schema<AppointmentDoc>(
@@ -57,6 +59,10 @@ const appointmentSchema = new mongoose.Schema<AppointmentDoc>(
     patientStory: {
       type: String,
     },
+    isPaid: {
+      type: Boolean,
+      default: false
+    }
   },
   {
     timestamps: true,

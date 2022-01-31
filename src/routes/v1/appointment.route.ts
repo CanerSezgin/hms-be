@@ -43,7 +43,7 @@ router.get(
 router.post(
   '/search',
   async (req: Request, res: Response, next: NextFunction) => {
-    const searchableKeys = ['doctorId', 'patientId', 'date', 'status']
+    const searchableKeys = ['doctorId', 'patientId', 'date', 'status', 'isPaid']
     const { page = 1, limit = 12, populate = false} = req.body
 
     const skip = (page - 1) * limit
